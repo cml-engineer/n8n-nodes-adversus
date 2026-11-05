@@ -1,0 +1,15 @@
+{
+  "node": "n8n-nodes-adversus.adversus",
+  "nodeVersion": "1.0",
+  "codexVersion": "1.0",
+  "categories": [
+    "Sales"
+  ],
+  "resources": {
+    "primaryDocumentation": [
+      {
+        "url": "https://solutions.adversus.io/api"
+      }
+    ]
+  }
+}

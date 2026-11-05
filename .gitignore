@@ -1,0 +1,30 @@
+# Build output and dependencies
+dist
+node_modules
+
+# Packed tarballs
+*.tgz
+
+# Local backups
+*.before-audit
+*.bak
+backup-*/
+
+# Local n8n data, databases and logs
+.n8n/
+.n8n-node-cli/
+.cache/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.log
+*.pid
+
+# Secrets and environment files
+.env
+.env.*
+*.pem
+*.key
+
+# OS and editor files
+.DS_Store
