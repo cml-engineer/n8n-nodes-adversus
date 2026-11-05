@@ -1,29 +1,109 @@
+# Publishes n8n-nodes-adversus to npm with provenance when a version tag is pushed.
+#
+# Based on the publish workflow scaffolded by @n8n/node-cli 0.55.5
+# (`n8n-node release --init-workflow`) and the official n8n-nodes-starter.
+# n8n requires verified community nodes to be published from GitHub Actions
+# with npm provenance (from May 1 2026).
+#
+# Release flow (see README "Releasing"):
+#   1. Locally: `npm run release` bumps the version, updates the changelog,
+#      commits, creates the tag (for example 0.2.0, no "v" prefix) and pushes it.
+#   2. The tag push triggers this workflow. Pushes to branches and pull requests
+#      never publish.
+#   3. In CI, `npm run release` (n8n-node release) runs lint and build, then
+#      `npm publish` with RELEASE_MODE=true and NPM_CONFIG_PROVENANCE=true.
+#      RELEASE_MODE satisfies the `prepublishOnly: n8n-node prerelease` guard,
+#      which still blocks any plain `npm publish`.
+#
+# Authentication:
+#   - First release (package not on npm yet): add a granular npm access token
+#     as the repository secret NPM_TOKEN. Provenance is still generated through
+#     GitHub's OIDC token (id-token: write).
+#   - Later releases: configure npm Trusted Publishing for this repository and
+#     workflow file (publish.yml), then delete the NPM_TOKEN secret. Without
+#     NPM_TOKEN, npm authenticates through OIDC.
+
 name: Publish
+
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: Exact version from package.json to publish
-        required: true
-permissions:
-  contents: read
-  id-token: write
+  push:
+    tags:
+      # Matches 0.1.0, 1.2.3, 2.0.0-rc.1, etc. (release-it's default tag format).
+      - '*.*.*'
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   publish:
+    name: Publish to npm
     runs-on: ubuntu-latest
+
+    permissions:
+      # Required to mint an OIDC token for npm provenance and Trusted Publishing.
+      id-token: write
+      contents: read
+
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+        with:
+          # Full history so the tagged commit can be checked against main.
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '24'
-          registry-url: 'https://registry.npmjs.org'
-          cache: npm
-      - run: npm ci
-      - run: npm run lint
-      - run: npm test
-      - name: Validate release metadata
-        env:
-          RELEASE_VERSION: ${{ inputs.version }}
+          # No registry-url: setup-node would then write an .npmrc with a
+          # placeholder NODE_AUTH_TOKEN, which interferes with OIDC publishing.
+          cache: 'npm'
+
+      - name: Check Node.js and npm versions
+        # npm Trusted Publishing requires Node.js >= 22.14.0 and npm >= 11.5.1.
         run: |
-          node -e 'const p=require("./package.json"); if(p.private || p.version!==process.env.RELEASE_VERSION || JSON.stringify(p).includes("REPLACE_WITH")) throw Error("Complete release metadata and remove private flag before publication")'
-      - run: npm publish --provenance --access public
+          node --version
+          npm --version
+          node -e '
+            const [major, minor] = process.versions.node.split(".").map(Number);
+            if (major < 22 || (major === 22 && minor < 14)) throw new Error("Node.js >= 22.14.0 is required");
+          '
+          npm_version="$(npm --version)"
+          node -e '
+            const [a, b, c] = process.argv[1].split(".").map(Number);
+            if (a < 11 || (a === 11 && (b < 5 || (b === 5 && c < 1)))) throw new Error("npm >= 11.5.1 is required, found " + process.argv[1]);
+          ' "$npm_version"
+
+      - name: Validate tag and release metadata
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          node -e '
+            const p = require("./package.json");
+            const tag = process.env.TAG;
+            if (p.version !== tag) throw new Error(`Tag ${tag} does not match package.json version ${p.version}`);
+            if (p.private) throw new Error("package.json still has private=true; remove it deliberately before publishing");
+            if (JSON.stringify(p).includes("REPLACE_WITH")) throw new Error("package.json still contains REPLACE_WITH placeholders");
+          '
+          git fetch --no-tags origin main
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main || {
+            echo "The tagged commit is not on main"; exit 1;
+          }
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test
+        run: npm test
+
+      - name: Release
+        # n8n-node release (CI mode): lint, build, npm publish with provenance.
+        # Option A (first release): NPM_TOKEN secret is set and written to .npmrc.
+        # Option B (Trusted Publishing): NPM_TOKEN is unset; npm uses OIDC.
+        run: |
+          if [ -n "$NPM_TOKEN" ]; then
+            npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN"
+          fi
+          npm run release
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

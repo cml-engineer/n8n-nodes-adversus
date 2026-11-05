@@ -89,7 +89,47 @@ Programmatic style centralizes mixed ID/object responses and controls pagination
 
 The maintainer is Christian Lund, and the source repository is https://github.com/cml-engineer/n8n-nodes-adversus (report issues at https://github.com/cml-engineer/n8n-nodes-adversus/issues). Check npm name availability before publishing; it has not been reserved. The node and credential link to the official API documentation at https://solutions.adversus.io/api. The node and credential use the official Adversus logo at `nodes/Adversus/adversus.svg` for both light and dark mode.
 
-The GitHub publish workflow is manual-only and must be enabled deliberately after completing `docs/VERIFICATION.md`. Nothing is published by opening, installing or building the project. Do not run a release command until ownership, npm authentication and live validation are complete.
+Nothing is published by opening, installing, building or testing the project, or by pushing to `main` or opening a pull request. Do not start a release until the open items in `docs/VERIFICATION.md` are resolved.
+
+## Releasing
+
+Releases follow the official n8n flow (`@n8n/node-cli` 0.55.5 and the n8n-nodes-starter). Only a pushed version tag publishes.
+
+**Before the first release:**
+
+1. Resolve the open items in `docs/VERIFICATION.md`.
+2. Remove `"private": true` from package.json in a normal commit on `main`. The publish workflow refuses to run while it is set, or while package.json contains `REPLACE_WITH` placeholders.
+3. Set up npm authentication (see below).
+
+**Creating a version and tag.** On an up-to-date, clean `main` with an upstream, run:
+
+```sh
+npm run release
+```
+
+This runs `n8n-node release`, which uses release-it to run lint and build, ask for the version bump, regenerate `CHANGELOG.md` with `npx auto-changelog` (from git history; review the result, since it replaces hand-written entries), commit, create a tag with the plain version number (for example `0.2.0`, no `v` prefix) and push the commit and tag. It also creates a GitHub release; set a `GITHUB_TOKEN` environment variable to do that automatically, otherwise release-it opens the release form in the browser. The local command does not publish to npm.
+
+**How the tag push publishes.** `.github/workflows/publish.yml` runs only for pushed tags matching `*.*.*`. It checks that:
+
+- Node.js is at least 22.14.0 and npm at least 11.5.1 (it uses Node.js 24);
+- the tag equals the `version` in package.json;
+- package.json is not private and has no placeholders;
+- the tagged commit is on `main`.
+
+It then runs `npm ci` and `npm test`, followed by `npm run release`. In GitHub Actions, `n8n-node release` runs lint and build and calls `npm publish` with `RELEASE_MODE=true` and `NPM_CONFIG_PROVENANCE=true`. The `prepublishOnly` guard (`n8n-node prerelease`) accepts only that release mode, so a plain `npm publish` stays blocked.
+
+**Authentication.**
+
+- **First release:** npm Trusted Publishing is configured in the package's settings on npmjs.com, so it is not available until the package exists. For the first release, create a granular npm access token with publish (read and write) permission and add it as the repository secret `NPM_TOKEN`. The workflow writes it to `.npmrc`. Provenance is still created through GitHub's OIDC token (`id-token: write`).
+- **Later releases:** on npmjs.com, open the package, then **Settings > Trusted Publishers**. Add GitHub Actions with owner `cml-engineer`, repository `n8n-nodes-adversus` and workflow `publish.yml`. A new trusted publisher must complete a successful publish within 2 days, or it expires. After that, delete the `NPM_TOKEN` secret and revoke the token. Without `NPM_TOKEN`, npm authenticates through OIDC.
+
+**After publishing:** run the full n8n scanner against the published version. It checks npm provenance, downloads the attested GitHub commit and lints both the source and the tarball, so it cannot run before publication:
+
+```sh
+npx @n8n/scan-community-package n8n-nodes-adversus@<version>
+```
+
+Before publication, only its static-analysis step has been run locally (see `docs/VALIDATION.md`).
 
 ## Compatibility and status
 

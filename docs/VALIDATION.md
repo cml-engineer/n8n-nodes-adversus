@@ -36,7 +36,8 @@ Performed manually by the maintainer on a local n8n 2.46.6 instance against a li
 | Search without matches | Returns zero items without an error |
 | Contact Update | Changes only the submitted field |
 | Lead Create | Creates both a contact and a campaign lead; the contact fields were verified using Contact Get |
-| Lead Update | `active=false` was verified using Lead Get |
+| Lead Update | `active=false` was verified using Lead Get. This does not prove that PUT leaves other, omitted lead fields unchanged |
+| Invalid credentials | Live HTTP 401 confirmed manually |
 | Unknown contact | Returns NodeApiError with HTTP 404 |
 | Non-numeric ID | Rejected by the node |
 | On Error: Continue | Valid → failing → valid input returns three items and continues after the error |
@@ -176,16 +177,28 @@ Investigated in the n8n 2.46.6 source and in the registered node types; not clic
 - **Credentials:** the HTTP Request node uses the `adversusApi` credential as a predefined credential type. n8n adds "Allowed HTTP Request Domains" (default **All**) and "Allowed Domains" to such credentials. Users should restrict the credential to `api.adversus.io` so the Basic Auth credentials cannot be sent to other domains.
 - **Node changes required:** none. This is standard n8n behavior for nodes with these credentials. No endpoint or generic proxy was added.
 
+## n8n package scanner (static analysis only)
+
+Checked on 2026-11-05 with `@n8n/scan-community-package` 0.42.0. Its CLI only scans published packages, because it first checks npm provenance and downloads the attested GitHub commit. Those two steps have not run. The static-analysis step was run locally through the package's exported `analyzePackage()`, with the scanner's own ESLint configuration and file patterns:
+
+| Target | Files | Result |
+| --- | --- | --- |
+| Committed source (`git archive` of commit 081a784) | package.json, nodes/, credentials/ | Passed, no findings |
+| Fresh `npm pack` tarball | compiled `.js` files, package.json | Passed, no findings |
+
+A negative control (an added `console.log`) was reported, so the clean result is not an empty scan.
+
 ## Not verified yet
 
-- Live HTTP 429 responses and the retry/Retry-After behavior (only covered by mock tests).
+- Live HTTP 429 responses and the retry/Retry-After behavior (only covered by mock tests). Rate limits are deliberately not provoked against the live account.
 - Parallel load, concurrent workflows and the shared API rate limit.
-- HTTP 401 and 403 responses.
+- HTTP 403 responses (401 has been confirmed).
+- Partial updates of lead fields other than `active`.
 - Return All with more than 100 records across many pages.
 - The logo in light mode, and masking of a typed password.
 - Running a workflow in an instance installed with plain npm install (method B).
 - Custom API Call through the editor UI (HTTP Request node with the Adversus credential).
 - Installing from the npm registry, or through Settings > Community Nodes (the package is not published).
-- The public n8n community package scanner.
+- The full n8n community package scanner (provenance and attested-source steps need a published package).
 
 The open API questions are in API-QUESTIONS.md, and the remaining publication steps are in VERIFICATION.md.
