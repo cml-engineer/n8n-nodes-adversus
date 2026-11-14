@@ -53,6 +53,5 @@
 	},
 	"engines": {
 		"node": ">=22.16"
-	},
-	"private": true
+	}
 }
