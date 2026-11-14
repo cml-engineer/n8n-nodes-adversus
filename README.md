@@ -1,6 +1,6 @@
 # n8n-nodes-adversus
 
-An Adversus integration for n8n. Published on npm as `n8n-nodes-adversus` with npm provenance; not verified by n8n.
+An Adversus integration for n8n. Published on npm as `n8n-nodes-adversus` with npm provenance. Not yet submitted to n8n for verification, and not verified by n8n.
 
 ## Supported operations
 
@@ -120,7 +120,7 @@ It then runs `npm ci` and `npm test`, followed by `npm run release`. In GitHub A
 
 **Authentication.**
 
-- **Current setup: npm Trusted Publishing.** The package's trusted publisher on npmjs.com is GitHub Actions with owner `cml-engineer`, repository `n8n-nodes-adversus` and workflow `publish.yml` (no environment). The `NPM_TOKEN` repository secret has been deleted and the npm token revoked, so npm authenticates through GitHub's OIDC token (`id-token: write`). A tokenless publish has not been verified yet; the first release after this change is the test. A new trusted publisher must complete a successful publish within 2 days, or it expires.
+- **Current setup: npm Trusted Publishing.** The package's trusted publisher on npmjs.com is GitHub Actions with owner `cml-engineer`, repository `n8n-nodes-adversus` and workflow `publish.yml` (no environment). The `NPM_TOKEN` repository secret has been deleted and the npm token revoked, so npm authenticates through GitHub's OIDC token (`id-token: write`). Verified with 0.1.3: published without `NPM_TOKEN` by the Publish workflow (https://github.com/cml-engineer/n8n-nodes-adversus/actions/runs/43636356245), with npm recording the publisher as `GitHub Actions <npm-oidc-no-reply@github.com>`. A new trusted publisher must complete a successful publish within 2 days, or it expires.
 - **First release (history):** Trusted Publishing can only be configured once the package exists, so 0.1.2 was published with a granular npm access token in the `NPM_TOKEN` secret. The workflow still supports that fallback: if `NPM_TOKEN` is set, it is written to `.npmrc`.
 
 **After publishing:** run the full n8n scanner against the published version. It checks npm provenance, downloads the attested GitHub commit and lints both the source and the tarball, so it cannot run before publication:
@@ -129,7 +129,7 @@ It then runs `npm ci` and `npm test`, followed by `npm run release`. In GitHub A
 npx @n8n/scan-community-package n8n-nodes-adversus@<version>
 ```
 
-0.1.2 passed the full scanner (see `docs/VALIDATION.md`).
+0.1.2 and 0.1.3 passed the full scanner (see `docs/VALIDATION.md`).
 
 ## Compatibility and status
 

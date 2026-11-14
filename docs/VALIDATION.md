@@ -204,7 +204,24 @@ The registry also lists a `0.0.0-stage` version created two minutes before 0.1.2
 
 ### Trusted Publishing
 
-Configured on npmjs.com after 0.1.2: GitHub Actions, owner `cml-engineer`, repository `n8n-nodes-adversus`, workflow `publish.yml`, no environment. The `NPM_TOKEN` secret has been deleted and the token revoked. **Not verified yet:** no version has been published without `NPM_TOKEN`.
+Configured on npmjs.com after 0.1.2: GitHub Actions, owner `cml-engineer`, repository `n8n-nodes-adversus`, workflow `publish.yml`, no environment. The `NPM_TOKEN` secret has been deleted and the token revoked. **Verified with 0.1.3** (see below).
+
+## Published package (0.1.3)
+
+Published on 2026-11-14 by the Publish workflow without `NPM_TOKEN`: https://github.com/cml-engineer/n8n-nodes-adversus/actions/runs/43636356245 (attempt 1). Source commit c65e368 (tag `0.1.3`). No changes to node functionality or dependencies compared with 0.1.2.
+
+| Check | Result |
+| --- | --- |
+| Tokenless publish (Trusted Publishing) | Verified: npm records the publisher as `GitHub Actions <npm-oidc-no-reply@github.com>` (0.1.2 was published with a token as `cml_engineer`) |
+| npm provenance | SLSA v1 provenance; workflow `.github/workflows/publish.yml`, ref `refs/tags/0.1.3`, commit c65e368, invocation run 43636356245 attempt 1 |
+| Package metadata | `latest` dist-tag; author, repository and license (MIT) correct; 16 files |
+| Full n8n scanner (`npx @n8n/scan-community-package n8n-nodes-adversus@0.1.3`, version 0.43.0) | Passed: provenance check, source fetched from github.com/cml-engineer/n8n-nodes-adversus@c65e368, tarball downloaded and analyzed; "has passed all security checks" |
+
+The live test (Community Nodes installation and Organization → Get) was performed with 0.1.2 only. 0.1.3 was scanned, but not installed or tested live.
+
+## n8n submission
+
+The package has not been submitted to n8n (https://creators.n8n.io/nodes) yet, and it is not verified by n8n.
 
 ## Not verified yet
 
@@ -216,7 +233,7 @@ Configured on npmjs.com after 0.1.2: GitHub Actions, owner `cml-engineer`, repos
 - The logo in light mode, and masking of a typed password.
 - Running a workflow in an instance installed with plain npm install (method B).
 - Custom API Call through the editor UI (HTTP Request node with the Adversus credential).
-- A tokenless publish through npm Trusted Publishing (OIDC).
+- Installing 0.1.3 through Settings > Community Nodes and running it live (only 0.1.2 was tested live).
 - Operations other than Organization → Get from the package installed through Settings > Community Nodes.
 
 The open API questions are in API-QUESTIONS.md, and the remaining publication steps are in VERIFICATION.md.

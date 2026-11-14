@@ -34,7 +34,7 @@ Everything above the `auto-changelog-above` marker is generated from git history
 Patch release to verify publishing through npm Trusted Publishing (GitHub OIDC, no `NPM_TOKEN`). No changes to node functionality or dependencies.
 
 - Document the published 0.1.2 package: provenance, full n8n scanner result and installation through Settings > Community Nodes with a live Organization → Get test.
-- Document the Trusted Publishing setup (configured, not yet verified).
+- Document the Trusted Publishing setup. 0.1.3 was the first version published without `NPM_TOKEN`; this was verified after release (see docs/VALIDATION.md).
 
 ### 0.1.2
 

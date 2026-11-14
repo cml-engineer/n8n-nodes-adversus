@@ -24,17 +24,17 @@
 - [x] Install from the npm registry through Settings > Community Nodes: 0.1.2 installed in a clean n8n 2.46.6 instance, new credentials created and Organization → Get succeeded (manually confirmed).
 - [x] Run npm ci, npm run lint, npm test and npm pack --dry-run (2026-11-14, before 0.1.3: lint clean, 22 tests passed, 16 files).
 - [x] Run the scanner's static analysis locally (@n8n/scan-community-package 0.42.0, source and tarball): no findings.
-- [x] Run the full scanner (`npx @n8n/scan-community-package n8n-nodes-adversus@<version>`) after publishing: 0.1.2 passed (manually confirmed). Repeat for each new version.
+- [x] Run the full scanner (`npx @n8n/scan-community-package n8n-nodes-adversus@<version>`) after publishing: 0.1.2 passed (run by the maintainer); 0.1.3 passed (@n8n/scan-community-package 0.43.0, source commit c65e368). Repeat for each new version.
 - [ ] Resolve or document the dependency audit findings (3 high via n8n-workflow → zod; see VALIDATION.md).
 - [ ] Keep MIT license, English UI/docs, no runtime dependencies, no environment-variable or filesystem access.
 - [x] Push the first commit to https://github.com/cml-engineer/n8n-nodes-adversus (public; CI passed).
 - [x] Update publish.yml to the official tag-triggered `npm run release` flow with provenance, NPM_TOKEN support and tag/version checks.
 - [x] Add a granular npm token as the repository secret `NPM_TOKEN` for the first release (used for 0.1.2).
 - [x] After the first release: configure npm Trusted Publishing (owner `cml-engineer`, repository `n8n-nodes-adversus`, workflow `publish.yml`, no environment), then delete `NPM_TOKEN` and revoke the token.
-- [ ] Verify Trusted Publishing: a release published from GitHub Actions without `NPM_TOKEN` (configured, not yet verified).
+- [x] Verify Trusted Publishing: 0.1.3 was published from GitHub Actions without `NPM_TOKEN` (https://github.com/cml-engineer/n8n-nodes-adversus/actions/runs/43636356245; source commit c65e368; npm publisher `GitHub Actions <npm-oidc-no-reply@github.com>`).
 - [x] Remove the temporary private=true flag in a commit on main, then run `npm run release` locally. The pushed tag triggers the Publish workflow (see README "Releasing"). Done for 0.1.1 (publish failed) and 0.1.2 (published).
 - [x] Confirm that the npm version has provenance and correct author/repository metadata (0.1.2: SLSA provenance from `.github/workflows/publish.yml` at `refs/tags/0.1.2`, gitHead 6d8b2f3; author and repository correct).
-- [ ] Submit the published package through https://creators.n8n.io/nodes and respond to review feedback.
+- [ ] Submit the published package through https://creators.n8n.io/nodes and respond to review feedback. Not submitted yet.
 
 Official references:
 - https://docs.n8n.io/connect/create-nodes/build-your-node/reference/verification-guidelines.md
