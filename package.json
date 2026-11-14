@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-adversus",
-	"version": "0.1.2",
+	"version": "0.1.3",
 	"description": "Work with contacts, leads, campaigns, pools and fields in Adversus",
 	"license": "MIT",
 	"homepage": "https://www.adversus.io",
