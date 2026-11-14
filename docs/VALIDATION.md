@@ -188,6 +188,24 @@ Checked on 2026-11-05 with `@n8n/scan-community-package` 0.42.0. Its CLI only sc
 
 A negative control (an added `console.log`) was reported, so the clean result is not an empty scan.
 
+## Published package (0.1.2)
+
+Published on 2026-11-14 by the Publish workflow (run 43620656578, attempt 2) using the `NPM_TOKEN` secret.
+
+| Check | Result |
+| --- | --- |
+| npm provenance | SLSA v1 provenance; workflow `.github/workflows/publish.yml`, ref `refs/tags/0.1.2`, repository `cml-engineer/n8n-nodes-adversus`; gitHead 6d8b2f3 |
+| Package metadata | Author Christian Lund, repository and license (MIT) correct; 16 files |
+| Full n8n scanner (`npx @n8n/scan-community-package n8n-nodes-adversus@0.1.2`) | Passed (run by the maintainer) |
+| Installation through Settings > Community Nodes | Installed in a clean n8n 2.46.6 instance (separate user folder, no development link), manually confirmed by the maintainer |
+| Live test from the installed package | New Adversus credentials created; Organization → Get succeeded |
+
+The registry also lists a `0.0.0-stage` version created two minutes before 0.1.2. Its origin has not been investigated.
+
+### Trusted Publishing
+
+Configured on npmjs.com after 0.1.2: GitHub Actions, owner `cml-engineer`, repository `n8n-nodes-adversus`, workflow `publish.yml`, no environment. The `NPM_TOKEN` secret has been deleted and the token revoked. **Not verified yet:** no version has been published without `NPM_TOKEN`.
+
 ## Not verified yet
 
 - Live HTTP 429 responses and the retry/Retry-After behavior (only covered by mock tests). Rate limits are deliberately not provoked against the live account.
@@ -198,7 +216,7 @@ A negative control (an added `console.log`) was reported, so the clean result is
 - The logo in light mode, and masking of a typed password.
 - Running a workflow in an instance installed with plain npm install (method B).
 - Custom API Call through the editor UI (HTTP Request node with the Adversus credential).
-- Installing from the npm registry, or through Settings > Community Nodes (the package is not published).
-- The full n8n community package scanner (provenance and attested-source steps need a published package).
+- A tokenless publish through npm Trusted Publishing (OIDC).
+- Operations other than Organization → Get from the package installed through Settings > Community Nodes.
 
 The open API questions are in API-QUESTIONS.md, and the remaining publication steps are in VERIFICATION.md.

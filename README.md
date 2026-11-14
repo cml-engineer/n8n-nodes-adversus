@@ -1,6 +1,6 @@
 # n8n-nodes-adversus
 
-An Adversus integration for n8n. Development version 0.1.0; not published or verified by n8n.
+An Adversus integration for n8n. Published on npm as `n8n-nodes-adversus` with npm provenance; not verified by n8n.
 
 ## Supported operations
 
@@ -87,9 +87,9 @@ HTTP 429 retries at most three times, respecting Retry-After up to 180 seconds (
 
 Programmatic style centralizes mixed ID/object responses and controls pagination, pacing and retry handling. There are no runtime dependencies, environment variable reads or filesystem operations in node execution. Test fixtures contain synthetic data only.
 
-The maintainer is Christian Lund, and the source repository is https://github.com/cml-engineer/n8n-nodes-adversus (report issues at https://github.com/cml-engineer/n8n-nodes-adversus/issues). Check npm name availability before publishing; it has not been reserved. The node and credential link to the official API documentation at https://solutions.adversus.io/api. The node and credential use the official Adversus logo at `nodes/Adversus/adversus.svg` for both light and dark mode.
+The maintainer is Christian Lund, and the source repository is https://github.com/cml-engineer/n8n-nodes-adversus (report issues at https://github.com/cml-engineer/n8n-nodes-adversus/issues). The package is published on npm as `n8n-nodes-adversus` (first published version: 0.1.2). The node and credential link to the official API documentation at https://solutions.adversus.io/api. The node and credential use the official Adversus logo at `nodes/Adversus/adversus.svg` for both light and dark mode.
 
-Nothing is published by opening, installing, building or testing the project, or by pushing to `main` or opening a pull request. Do not start a release until the open items in `docs/VERIFICATION.md` are resolved.
+Nothing is published by opening, installing, building or testing the project, or by pushing to `main` or opening a pull request. Only a pushed version tag publishes (see Releasing). The remaining verification items are in `docs/VERIFICATION.md`.
 
 ## Releasing
 
@@ -120,8 +120,8 @@ It then runs `npm ci` and `npm test`, followed by `npm run release`. In GitHub A
 
 **Authentication.**
 
-- **First release:** npm Trusted Publishing is configured in the package's settings on npmjs.com, so it is not available until the package exists. For the first release, create a granular npm access token with publish (read and write) permission and add it as the repository secret `NPM_TOKEN`. The workflow writes it to `.npmrc`. Provenance is still created through GitHub's OIDC token (`id-token: write`).
-- **Later releases:** on npmjs.com, open the package, then **Settings > Trusted Publishers**. Add GitHub Actions with owner `cml-engineer`, repository `n8n-nodes-adversus` and workflow `publish.yml`. A new trusted publisher must complete a successful publish within 2 days, or it expires. After that, delete the `NPM_TOKEN` secret and revoke the token. Without `NPM_TOKEN`, npm authenticates through OIDC.
+- **Current setup: npm Trusted Publishing.** The package's trusted publisher on npmjs.com is GitHub Actions with owner `cml-engineer`, repository `n8n-nodes-adversus` and workflow `publish.yml` (no environment). The `NPM_TOKEN` repository secret has been deleted and the npm token revoked, so npm authenticates through GitHub's OIDC token (`id-token: write`). A tokenless publish has not been verified yet; the first release after this change is the test. A new trusted publisher must complete a successful publish within 2 days, or it expires.
+- **First release (history):** Trusted Publishing can only be configured once the package exists, so 0.1.2 was published with a granular npm access token in the `NPM_TOKEN` secret. The workflow still supports that fallback: if `NPM_TOKEN` is set, it is written to `.npmrc`.
 
 **After publishing:** run the full n8n scanner against the published version. It checks npm provenance, downloads the attested GitHub commit and lints both the source and the tarball, so it cannot run before publication:
 
@@ -129,11 +129,11 @@ It then runs `npm ci` and `npm test`, followed by `npm run release`. In GitHub A
 npx @n8n/scan-community-package n8n-nodes-adversus@<version>
 ```
 
-Before publication, only its static-analysis step has been run locally (see `docs/VALIDATION.md`).
+0.1.2 passed the full scanner (see `docs/VALIDATION.md`).
 
 ## Compatibility and status
 
-Based on the supplied Adversus Swagger 2.0 specification, API version 1.2.1. All 15 operations have been tested manually against a live Adversus account on n8n 2.46.6; the packed npm package loads in a separate n8n 2.46.6 instance. Live rate-limit (429) behavior, parallel load, the packed package in the editor UI and installation from the npm registry have not been verified yet. See `docs/VALIDATION.md` for actual checks performed and `docs/API-QUESTIONS.md` for specification inconsistencies. Intended for n8n 2.x; compatibility with your exact server version requires a local import/execution test. No trigger node is included in this release.
+Based on the supplied Adversus Swagger 2.0 specification, API version 1.2.1. All 15 operations have been tested manually against a live Adversus account on n8n 2.46.6; the packed npm package loads in a separate n8n 2.46.6 instance. Version 0.1.2 was installed from the npm registry through Settings > Community Nodes in a clean n8n 2.46.6 instance, and Organization → Get succeeded there with new credentials. Live rate-limit (429) behavior and parallel load have not been verified yet. See `docs/VALIDATION.md` for actual checks performed and `docs/API-QUESTIONS.md` for specification inconsistencies. Intended for n8n 2.x; compatibility with your exact server version requires a local import/execution test. No trigger node is included in this release.
 
 ## License
 
