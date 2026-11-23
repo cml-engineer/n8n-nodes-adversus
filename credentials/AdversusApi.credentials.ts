@@ -10,7 +10,7 @@ export class AdversusApi implements ICredentialType {
 	name = 'adversusApi';
 	icon: Icon = {
 		light: 'file:../nodes/Adversus/adversus.svg',
-		dark: 'file:../nodes/Adversus/adversus.svg',
+		dark: 'file:../nodes/Adversus/adversus.dark.svg',
 	};
 	displayName = 'Adversus API';
 	documentationUrl = 'https://solutions.adversus.io/api';

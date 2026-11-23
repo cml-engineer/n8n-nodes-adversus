@@ -536,7 +536,7 @@ export class Adversus implements INodeType {
 		name: 'adversus',
 		icon: {
 			light: 'file:adversus.svg',
-			dark: 'file:adversus.svg',
+			dark: 'file:adversus.dark.svg',
 		},
 		group: ['transform'],
 		version: 1,
